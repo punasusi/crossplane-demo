@@ -43,10 +43,17 @@ kubectl --namespace crossplane-system \
 kubectl apply \
     --filename crossplane-config/provider-aws.yaml
 ```
-
+```
+kubectl apply \
+    --filename crossplane-config/provider-azure.yaml
+```
 ```
 kubectl apply \
     --filename crossplane-config/provider-config-aws.yaml
+```
+```
+kubectl apply \
+    --filename crossplane-config/provider-config-azure.yaml
 ```
 Might need to retry this command if 'not recognized' as the above provider is not yet ready
 
@@ -74,6 +81,10 @@ kubectl create namespace example-team
 ```
 kubectl --namespace example-team apply \
     --filename examples/aws-eks.yaml
+
+kubectl --namespace example-team apply \
+    --filename examples/azure-aks.yaml
+
 
 kubectl get managed,releases,objects
 ```

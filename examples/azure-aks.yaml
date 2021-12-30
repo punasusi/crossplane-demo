@@ -1,0 +1,17 @@
+
+---
+apiVersion: punasusi.com/v1alpha1
+kind: ClusterClaim
+metadata:
+  name: crossplane-demo
+  labels:
+    cluster-owner: punasusi
+spec:
+  id: exampleteamaks
+  compositionSelector:
+    matchLabels:
+      provider: azure
+      cluster: aks
+  parameters:
+    nodeSize: small
+    minNodeCount: 3
