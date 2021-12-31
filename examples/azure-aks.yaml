@@ -7,7 +7,7 @@ metadata:
   labels:
     cluster-owner: punasusi
 spec:
-  id: exampleteamaks
+  id: crossplane-demo
   compositionSelector:
     matchLabels:
       provider: azure
