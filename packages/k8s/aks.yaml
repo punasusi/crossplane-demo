@@ -15,26 +15,13 @@ spec:
     patches:
     - fromFieldPath: metadata.labels
   resources:
-  - name: resourcegroup
-    base:
-      apiVersion: azure.jet.crossplane.io/v1alpha1
-      kind: ResourceGroup
-      spec:
-        providerConfigRef:
-          name: default
-        forProvider:
-          location: eastus
-    patches:
-    - fromFieldPath: spec.id
-      toFieldPath: metadata.name
-    - fromFieldPath: spec.id
-      toFieldPath: spec.forProvider.name
   - name: aks
     base:
       apiVersion: containerservice.azure.jet.crossplane.io/v1alpha1
       kind: KubernetesCluster
       spec:
         forProvider:
+          resourceGroupName: crossplane-demo
           location: eastus
           dnsPrefix: punasusi
           kubernetesVersion: "1.21.2"
@@ -57,7 +44,7 @@ spec:
             fmt: "%s-cluster"
     - fromFieldPath: spec.id
       toFieldPath: spec.forProvider.defaultNodePool[0].name
-    - fromFieldPath: spec.id
+    - fromFieldPath: spec.resourcegroupname
       toFieldPath: spec.forProvider.resourceGroupName
     - fromFieldPath: spec.parameters.version
       toFieldPath: spec.forProvider.kubernetesVersion

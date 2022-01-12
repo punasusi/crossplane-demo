@@ -3,11 +3,12 @@
 apiVersion: punasusi.com/v1alpha1
 kind: ClusterClaim
 metadata:
-  name: crossplane-demo
+  name: cpdemo
   labels:
     cluster-owner: punasusi
 spec:
-  id: crossplane-demo
+  id: cpdemo
+  # resourcegroupname: crossplane-demo
   compositionSelector:
     matchLabels:
       provider: azure

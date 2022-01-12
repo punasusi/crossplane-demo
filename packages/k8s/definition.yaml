@@ -28,6 +28,9 @@ spec:
               id:
                 type: string
                 description: ID of this Cluster that other objects will use to refer to it.
+              resourcegroupname:
+                type: string
+                description: Resourcegroup to be used, only valid for Azure.
               parameters:
                 type: object
                 properties:
