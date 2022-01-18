@@ -6,5 +6,5 @@ metadata:
   name: crossplane-provider-jet-azure
 spec:
   package: crossplane/provider-jet-azure:v0.6.0-preview
-  controllerConfigRef:
-    name: debug-config
+  # controllerConfigRef:
+  #   name: debug-config
