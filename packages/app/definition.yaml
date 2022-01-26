@@ -1,0 +1,76 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: apps.punasusi.com
+spec:
+  defaultCompositionRef:
+    name: app-frontend
+  group: punasusi.com
+  names:
+    kind: App
+    plural: apps
+  claimNames:
+    kind: AppClaim
+    plural: appclaims
+  versions:
+  - name: v1alpha1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              id:
+                type: string
+                description: ID of this application that other objects will use to refer to it.
+              parameters:
+                type: object
+                properties:
+                  namespace:
+                    description: The container image of the application
+                    type: string
+                  podSize:
+                    description: Size of the pods resource requests and limits; small medium large
+                    type: string
+                  image:
+                    description: The container image of the application
+                    type: string
+                  ingressPath:
+                    description: The path for the ingress router
+                    type: string
+                  port:
+                    description: The application port
+                    type: integer
+                    default: 80
+                  host:
+                    description: The host address of the application
+                    type: string
+                  hpaMin:
+                    description: The min number of replicas
+                    type: integer
+                  hpaMax:
+                    description: The max number of replicas
+                    type: integer
+                  hpaCpu:
+                    description: The CPU use to trigger new replica
+                    type: integer
+                required:
+                - image
+                - namespace
+                - podSize
+            required:
+            - id
+            - parameters
+          status:
+            type: object
+            properties:
+              host:
+                description: The host address of the application
+                type: string
+    additionalPrinterColumns:
+    - name: host
+      type: string
+      jsonPath: ".status.host"

@@ -1,0 +1,7 @@
+---
+apiVersion: pkg.crossplane.io/v1
+kind: Configuration
+metadata:
+  name: crossplane-app
+spec:
+  package: punasusi/crossplane-app:v0.0.1
