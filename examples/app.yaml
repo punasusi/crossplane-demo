@@ -13,6 +13,6 @@ spec:
     namespace: cpdemo
     image: httpd:latest
     port: 80
-    podSize: random
-    hpaMax: 2
-    hpaMin: 6
+    podSize: small
+    hpaMax: 3
+    hpaMin: 2
