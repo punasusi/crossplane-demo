@@ -24,7 +24,7 @@ spec:
           resourceGroupName: crossplane-demo
           location: eastus
           dnsPrefix: punasusi
-          kubernetesVersion: "1.21.2"
+          kubernetesVersion: "1.23.8"
           defaultNodePool:
           - maxCount: 10
             enableAutoScaling: true
