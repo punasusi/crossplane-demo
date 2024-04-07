@@ -1074,3 +1074,240 @@ spec:
     realm: "basic-realm"  # The name of the realm in Keycloak
   providerConfigRef:
     name: "keycloak-provider-config"  # Reference to the ProviderConfig resource
+---
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: cluster-aws
+  labels:
+    provider: aws
+    cluster: eks
+spec:
+  compositeTypeRef:
+    apiVersion: eficode.com/v1alpha1
+    kind: CompositeCluster
+  writeConnectionSecretsToNamespace: crossplane-system
+  patchSets:
+  - name: metadata
+    patches:
+    - fromFieldPath: metadata.labels
+  resources:
+    - name: x-ClusterRoleBinding-opencost-prometheus-opencost-exporter
+      base:
+        apiVersion: kubernetes.crossplane.io/v1alpha1
+        kind: Object
+        spec:
+          forProvider:
+            manifest:
+            apiVersion: rbac.authorization.k8s.io/v1
+            kind: ClusterRoleBinding
+            metadata:
+              labels:
+                app.kubernetes.io/instance: opencost
+                app.kubernetes.io/name: prometheus-opencost-exporter
+                app.kubernetes.io/version: 1.108.0
+              name: opencost-prometheus-opencost-exporter
+            roleRef:
+              apiGroup: rbac.authorization.k8s.io
+              kind: ClusterRole
+              name: opencost-prometheus-opencost-exporter
+            subjects:
+            - kind: ServiceAccount
+              name: opencost-prometheus-opencost-exporter
+              namespace: monitoring-services-grafana
+    - name: x-ClusterRole-opencost-prometheus-opencost-exporter
+      base:
+        apiVersion: kubernetes.crossplane.io/v1alpha1
+        kind: Object
+        spec:
+          forProvider:
+            manifest:
+            apiVersion: rbac.authorization.k8s.io/v1
+            kind: ClusterRole
+            metadata:
+              labels:
+                app.kubernetes.io/instance: opencost
+                app.kubernetes.io/name: prometheus-opencost-exporter
+                app.kubernetes.io/version: 1.108.0
+              name: opencost-prometheus-opencost-exporter
+            rules:
+            - apiGroups:
+              - ""
+              resources:
+              - configmaps
+              - deployments
+              - nodes
+              - pods
+              - services
+              - resourcequotas
+              - replicationcontrollers
+              - limitranges
+              - persistentvolumeclaims
+              - persistentvolumes
+              - namespaces
+              - endpoints
+              verbs:
+              - get
+              - list
+              - watch
+            - apiGroups:
+              - extensions
+              resources:
+              - daemonsets
+              - deployments
+              - replicasets
+              verbs:
+              - get
+              - list
+              - watch
+            - apiGroups:
+              - apps
+              resources:
+              - statefulsets
+              - deployments
+              - daemonsets
+              - replicasets
+              verbs:
+              - list
+              - watch
+            - apiGroups:
+              - batch
+              resources:
+              - cronjobs
+              - jobs
+              verbs:
+              - get
+              - list
+              - watch
+            - apiGroups:
+              - autoscaling
+              resources:
+              - horizontalpodautoscalers
+              verbs:
+              - get
+              - list
+              - watch
+            - apiGroups:
+              - policy
+              resources:
+              - poddisruptionbudgets
+              verbs:
+              - get
+              - list
+              - watch
+            - apiGroups:
+              - storage.k8s.io
+              resources:
+              - storageclasses
+              verbs:
+              - get
+              - list
+              - watch
+    - name: x-Deployment-opencost-prometheus-opencost-exporter
+      base:
+        apiVersion: kubernetes.crossplane.io/v1alpha1
+        kind: Object
+        spec:
+          forProvider:
+            manifest:
+            apiVersion: apps/v1
+            kind: Deployment
+            metadata:
+              labels:
+                app.kubernetes.io/instance: opencost
+                app.kubernetes.io/name: prometheus-opencost-exporter
+                app.kubernetes.io/version: 1.108.0
+              name: opencost-prometheus-opencost-exporter
+            spec:
+              replicas: 1
+              selector:
+                matchLabels:
+                  app.kubernetes.io/instance: opencost
+                  app.kubernetes.io/name: prometheus-opencost-exporter
+              strategy:
+                rollingUpdate:
+                  maxSurge: 1
+                  maxUnavailable: 1
+                type: RollingUpdate
+              template:
+                metadata:
+                  labels:
+                    app.kubernetes.io/instance: opencost
+                    app.kubernetes.io/name: prometheus-opencost-exporter
+                spec:
+                  containers:
+                  - env:
+                    - name: PROMETHEUS_SERVER_ENDPOINT
+                      value: http://prometheus-server.monitoring.svc:80
+                    - name: CLOUD_PROVIDER_API_KEY
+                      value: NEEDS REPLACED
+                    - name: CLUSTER_ID
+                      value: default-cluster
+                    image: quay.io/kubecost1/kubecost-cost-model:1.106.8-rc.3
+                    imagePullPolicy: IfNotPresent
+                    livenessProbe:
+                      failureThreshold: 3
+                      httpGet:
+                        path: /healthz
+                        port: 9003
+                      initialDelaySeconds: 120
+                      periodSeconds: 10
+                    name: opencost-prometheus-opencost-exporter
+                    ports:
+                    - containerPort: 9003
+                      name: http
+                    readinessProbe:
+                      failureThreshold: 3
+                      httpGet:
+                        path: /healthz
+                        port: 9003
+                      initialDelaySeconds: 120
+                      periodSeconds: 10
+                    resources:
+                      limits:
+                        cpu: 999m
+                        memory: 1Gi
+                      requests:
+                        cpu: 10m
+                        memory: 55Mi
+                  serviceAccountName: opencost-prometheus-opencost-exporter
+    - name: x-ServiceAccount-opencost-prometheus-opencost-exporter
+      base:
+        apiVersion: kubernetes.crossplane.io/v1alpha1
+        kind: Object
+        spec:
+          forProvider:
+            manifest:
+            apiVersion: v1
+            automountServiceAccountToken: true
+            kind: ServiceAccount
+            metadata:
+              labels:
+                app.kubernetes.io/instance: opencost
+                app.kubernetes.io/name: prometheus-opencost-exporter
+                app.kubernetes.io/version: 1.108.0
+              name: opencost-prometheus-opencost-exporter
+    - name: x-Service-opencost-prometheus-opencost-exporter
+      base:
+        apiVersion: kubernetes.crossplane.io/v1alpha1
+        kind: Object
+        spec:
+          forProvider:
+            manifest:
+            apiVersion: v1
+            kind: Service
+            metadata:
+              labels:
+                app.kubernetes.io/instance: opencost
+                app.kubernetes.io/name: prometheus-opencost-exporter
+                app.kubernetes.io/version: 1.108.0
+              name: opencost-prometheus-opencost-exporter
+            spec:
+              ports:
+              - name: http
+                port: 9003
+                targetPort: 9003
+              selector:
+                app.kubernetes.io/instance: opencost
+                app.kubernetes.io/name: prometheus-opencost-exporter
+              type: ClusterIP
